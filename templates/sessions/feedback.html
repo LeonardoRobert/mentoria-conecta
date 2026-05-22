@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Feedback — MentoriaConecta{% endblock %}
+{% block content %}
+
+<div class="form-container">
+  <div class="form-card">
+    <div class="form-title">⭐ Avaliar sessão</div>
+    <div class="form-subtitle">Seu feedback ajuda a melhorar a plataforma e a experiência de todos.</div>
+
+    <form method="POST">
+      {% if sessao and sessao.mentoria %}
+        {% if usuario.tipo == 'aluno' %}
+          <input type="hidden" name="avaliado_id" value="{{ sessao.mentoria.mentor_id }}">
+          <p style="margin-bottom:20px;font-size:0.9rem;color:var(--cinza-medio);">Avaliando: <strong>{{ sessao.mentoria.mentor.nome if sessao.mentoria.mentor else 'Mentor' }}</strong></p>
+        {% else %}
+          <input type="hidden" name="avaliado_id" value="{{ sessao.mentoria.aluno_id }}">
+          <p style="margin-bottom:20px;font-size:0.9rem;color:var(--cinza-medio);">Avaliando: <strong>{{ sessao.mentoria.aluno.nome if sessao.mentoria.aluno else 'Aluno' }}</strong></p>
+        {% endif %}
+      {% endif %}
+
+      <div class="form-group">
+        <label>Nota (1 a 5 estrelas)</label>
+        <div style="display:flex;gap:10px;margin-top:8px;" id="star-container">
+          {% for i in range(1, 6) %}
+          <label style="cursor:pointer;font-size:1.8rem;transition:transform .1s;" id="star-{{ i }}">
+            <input type="radio" name="nota" value="{{ i }}" required style="display:none;">
+            ☆
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="comentario">Comentário <span style="font-weight:400;color:#999;">(opcional)</span></label>
+        <textarea id="comentario" name="comentario" placeholder="Como foi a sessão? O que poderia melhorar?"></textarea>
+      </div>
+
+      <button type="submit" class="btn-full">Enviar avaliação</button>
+    </form>
+
+    <div class="form-footer">
+      <a href="{{ url_for('main.dashboard') }}" style="color:var(--cinza-medio);">← Pular por agora</a>
+    </div>
+  </div>
+</div>
+
+{% block extra_js %}
+<script>
+  const stars = document.querySelectorAll('#star-container label');
+  stars.forEach((star, idx) => {
+    star.addEventListener('click', () => {
+      star.querySelector('input').checked = true;
+      stars.forEach((s, i) => {
+        s.textContent = i <= idx ? '★' : '☆';
+        s.style.color = i <= idx ? 'var(--verde)' : '#ccc';
+      });
+    });
+    star.addEventListener('mouseenter', () => {
+      stars.forEach((s, i) => s.style.color = i <= idx ? 'var(--verde)' : '#ccc');
+    });
+  });
+  document.getElementById('star-container').addEventListener('mouseleave', () => {
+    // manter estado selecionado
+  });
+</script>
+{% endblock %}
+
+{% endblock %}

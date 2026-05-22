@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Agendar Sessão — MentoriaConecta{% endblock %}
+{% block content %}
+
+<div class="form-container" style="max-width:540px;">
+  <div class="form-card">
+    <div class="form-title">📅 Agendar sessão</div>
+    {% if mentoria %}
+    <div class="form-subtitle">
+      Mentor: <strong>{{ mentoria.mentor.nome if mentoria.mentor else '—' }}</strong> |
+      Aluno: <strong>{{ mentoria.aluno.nome if mentoria.aluno else '—' }}</strong>
+    </div>
+    {% endif %}
+
+    <form method="POST">
+      <div class="form-group">
+        <label for="data_hora">Data e hora</label>
+        <input type="datetime-local" id="data_hora" name="data_hora" required>
+      </div>
+
+      <div class="form-group">
+        <label for="duracao_minutos">Duração (minutos)</label>
+        <select id="duracao_minutos" name="duracao_minutos">
+          <option value="30">30 minutos</option>
+          <option value="60" selected>1 hora</option>
+          <option value="90">1h30</option>
+          <option value="120">2 horas</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="formato">Formato</label>
+        <select id="formato" name="formato">
+          <option value="online">Online</option>
+          <option value="presencial">Presencial</option>
+        </select>
+      </div>
+
+      <div class="form-group" id="campo-link">
+        <label for="link_reuniao">Link da reunião <span style="font-weight:400;color:#999;">(opcional)</span></label>
+        <input type="url" id="link_reuniao" name="link_reuniao" placeholder="https://meet.google.com/...">
+      </div>
+
+      <div class="form-group">
+        <label for="notas">Observações <span style="font-weight:400;color:#999;">(opcional)</span></label>
+        <textarea id="notas" name="notas" placeholder="Tópicos a abordar, preparação necessária..."></textarea>
+      </div>
+
+      <button type="submit" class="btn-full">Confirmar agendamento</button>
+    </form>
+
+    <div class="form-footer">
+      <a href="{{ url_for('main.dashboard') }}" style="color:var(--cinza-medio);">← Voltar ao dashboard</a>
+    </div>
+  </div>
+</div>
+
+{% block extra_js %}
+<script>
+  const formatoSelect = document.getElementById('formato');
+  const campoLink = document.getElementById('campo-link');
+
+  formatoSelect.addEventListener('change', () => {
+    campoLink.style.display = formatoSelect.value === 'online' ? 'block' : 'none';
+  });
+</script>
+{% endblock %}
+
+{% endblock %}

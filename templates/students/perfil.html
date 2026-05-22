@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Meu Perfil — MentoriaConecta{% endblock %}
+{% block content %}
+
+<div class="form-container" style="max-width:600px;">
+  <div class="form-card">
+    <div class="form-title">⚙️ Meu Perfil</div>
+    <div class="form-subtitle">Informe as áreas que você busca aprender para receber recomendações melhores.</div>
+
+    <form method="POST">
+      <div class="form-group">
+        <label>Nome completo</label>
+        <input type="text" name="nome" value="{{ aluno.nome }}" required>
+      </div>
+      <div class="form-group">
+        <label>Telefone</label>
+        <input type="text" name="telefone" value="{{ aluno.telefone or '' }}">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 80px;gap:12px;">
+        <div class="form-group">
+          <label>Cidade</label>
+          <input type="text" name="cidade" value="{{ aluno.cidade or '' }}">
+        </div>
+        <div class="form-group">
+          <label>UF</label>
+          <input type="text" name="estado" value="{{ aluno.estado or '' }}" maxlength="2">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Bio / Objetivos</label>
+        <textarea name="bio">{{ aluno.bio or '' }}</textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Áreas que quero aprender</label>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;">
+          {% for h in habilidades_all %}
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;background:var(--branco);border:1px solid var(--cinza-claro);padding:6px 12px;border-radius:20px;font-size:0.85rem;">
+            <input type="checkbox" name="habilidades" value="{{ h.id }}"
+              {% if h.id in ids_aluno %}checked{% endif %}>
+            {{ h.nome }}
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <button type="submit" class="btn-full">Salvar alterações</button>
+    </form>
+
+    <div class="form-footer">
+      <a href="{{ url_for('aluno.dashboard') }}" style="color:var(--cinza-medio);">← Voltar ao dashboard</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

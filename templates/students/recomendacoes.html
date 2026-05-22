@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Mentores recomendados — MentoriaConecta{% endblock %}
+{% block content %}
+
+<section class="section">
+  <div class="section-title">🎯 Mentores recomendados para você</div>
+  <div class="section-subtitle">Calculado com base em compatibilidade de habilidades, avaliações e experiência</div>
+
+  {% if mentores %}
+  <div class="cards-grid">
+    {% for m in mentores %}
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
+        <div class="card-avatar" style="margin-bottom:0;">{{ m.nome[0] }}</div>
+        <span class="badge-score">{{ m.score|round(0)|int }}pts</span>
+      </div>
+      <h3>{{ m.nome }}</h3>
+      <p>{{ m.bio[:90] ~ '...' if m.bio and m.bio|length > 90 else m.bio or 'Mentor voluntário.' }}</p>
+
+      <div style="margin-top:12px;background:var(--cinza-claro);border-radius:6px;height:6px;overflow:hidden;">
+        <div style="width:{{ m.compatibilidade }}%;height:100%;background:var(--verde);border-radius:6px;"></div>
+      </div>
+      <div style="font-size:0.78rem;color:var(--cinza-medio);margin-top:4px;">{{ m.compatibilidade }}% compatível</div>
+
+      {% if m.media_avaliacao %}
+      <div class="stars" style="margin-top:8px;">★ {{ m.media_avaliacao }}</div>
+      {% endif %}
+
+      <div style="margin-top:16px;">
+        <form method="POST" action="{{ url_for('aluno.solicitar_mentoria', mentor_id=m.id) }}">
+          <input type="hidden" name="area_foco" value="Geral">
+          <button type="submit" class="btn-primary" style="padding:10px;font-size:0.88rem;width:100%;">Solicitar mentoria</button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div style="text-align:center;padding:60px 20px;">
+    <div style="font-size:3rem;margin-bottom:12px;">🔍</div>
+    <p style="color:var(--cinza-medio);">Complete seu <a href="{{ url_for('aluno.perfil') }}" style="color:var(--verde);">perfil e habilidades</a> para receber recomendações personalizadas.</p>
+  </div>
+  {% endif %}
+
+  <div style="margin-top:20px;">
+    <a href="{{ url_for('main.dashboard') }}" class="btn-secondary">← Voltar ao dashboard</a>
+  </div>
+</section>
+
+{% endblock %}

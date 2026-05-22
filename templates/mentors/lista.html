@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Mentores — MentoriaConecta{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="section-title">Nossos Mentores</div>
+  <div class="section-subtitle">Profissionais voluntários prontos para transformar sua trajetória</div>
+
+  {% if mentores %}
+  <div class="cards-grid">
+    {% for m in mentores %}
+    <div class="card">
+      <div class="card-avatar">
+        {% if m.foto_url %}
+          <img src="{{ m.foto_url }}" alt="{{ m.nome }}">
+        {% else %}
+          {{ m.nome[0] }}
+        {% endif %}
+      </div>
+      <h3>{{ m.nome }}</h3>
+      <p>{{ m.bio[:100] ~ '...' if m.bio and m.bio|length > 100 else m.bio or 'Mentor voluntário.' }}</p>
+      {% if m.cidade %}
+      <p style="font-size:0.8rem;color:#aaa;margin-top:6px;">📍 {{ m.cidade }}{% if m.estado %}, {{ m.estado }}{% endif %}</p>
+      {% endif %}
+      <div class="stars" style="margin-top:10px;">
+        {% if m.media_avaliacao %}★ {{ m.media_avaliacao }} ({{ m.total_avaliacoes }} avaliações)
+        {% else %}Sem avaliações ainda{% endif %}
+      </div>
+      <div style="margin-top:10px;">
+        <span class="badge">{{ m.total_sessoes }} sessões</span>
+        <span class="badge">{{ m.total_mentorias }} alunos</span>
+      </div>
+
+      {% if usuario and usuario.tipo == 'aluno' %}
+      <div style="margin-top:16px;">
+        <form method="POST" action="{{ url_for('aluno.solicitar_mentoria', mentor_id=m.id) }}">
+          <input type="hidden" name="area_foco" value="Geral">
+          <button type="submit" class="btn-primary" style="padding:10px 20px;font-size:0.88rem;width:100%;">Solicitar mentoria</button>
+        </form>
+      </div>
+      {% elif not usuario %}
+      <div style="margin-top:16px;">
+        <a href="{{ url_for('auth.registro') }}" class="btn-primary" style="padding:10px 20px;font-size:0.88rem;display:block;text-align:center;">Cadastre-se para solicitar</a>
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div style="text-align:center;padding:60px 20px;">
+    <div style="font-size:3rem;margin-bottom:12px;">👥</div>
+    <p style="color:var(--cinza-medio);">Nenhum mentor cadastrado ainda. <a href="{{ url_for('auth.registro') }}" style="color:var(--verde);">Seja o primeiro mentor!</a></p>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

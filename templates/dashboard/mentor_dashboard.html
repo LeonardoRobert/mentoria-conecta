@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block title %}Dashboard Mentor — MentoriaConecta{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+
+  <aside class="sidebar">
+    <div class="sidebar-user">
+      <span class="sidebar-user-name">{{ usuario.nome.split()[0] }}</span>
+      <span class="sidebar-user-tipo">Mentor</span>
+    </div>
+    <ul class="sidebar-nav">
+      <li><a href="{{ url_for('mentor.dashboard') }}" class="active">🏠 Dashboard</a></li>
+      <li><a href="{{ url_for('mentor.lista') }}">👥 Todos mentores</a></li>
+      <li><a href="{{ url_for('mentor.perfil') }}">⚙️ Meu Perfil</a></li>
+      <li><a href="{{ url_for('auth.logout') }}">🚪 Sair</a></li>
+    </ul>
+  </aside>
+
+  <div class="dash-body">
+    <div class="dash-header">
+      <h1>Painel do Mentor 🎓</h1>
+      <p>Gerencie seus alunos e sessões em um só lugar.</p>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-card-number">{{ stats.total_mentorias }}</div>
+        <div class="stat-card-label">Total de alunos</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-number">{{ mentorias | selectattr('status','equalto','pendente') | list | length }}</div>
+        <div class="stat-card-label">Aguardando resposta</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-number">{{ stats.total_sessoes }}</div>
+        <div class="stat-card-label">Sessões realizadas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-number">{{ stats.media_avaliacao or '—' }}</div>
+        <div class="stat-card-label">Avaliação média</div>
+      </div>
+    </div>
+
+    <!-- SOLICITAÇÕES PENDENTES -->
+    {% set pendentes = mentorias | selectattr('status','equalto','pendente') | list %}
+    {% if pendentes %}
+    <div class="dash-section-title">🔔 Solicitações pendentes ({{ pendentes|length }})</div>
+    <div class="cards-grid" style="margin-bottom:40px;">
+      {% for m in pendentes %}
+      <div class="card" style="border-left:4px solid var(--aviso);">
+        <div class="card-avatar">{{ m.aluno.nome[0] if m.aluno else '?' }}</div>
+        <h3>{{ m.aluno.nome if m.aluno else 'Aluno' }}</h3>
+        <p style="font-size:0.82rem;color:var(--cinza-medio);">{{ m.aluno.email if m.aluno else '' }}</p>
+        {% if m.area_foco %}
+        <p style="font-size:0.82rem;margin-top:6px;"><strong>Área:</strong> {{ m.area_foco }}</p>
+        {% endif %}
+        {% if m.objetivo %}
+        <p style="font-size:0.82rem;margin-top:4px;color:#666;">{{ m.objetivo[:80] }}...</p>
+        {% endif %}
+        <div style="margin-top:16px;display:flex;gap:10px;">
+          <form method="POST" action="{{ url_for('mentor.aceitar_mentoria', mentoria_id=m.id) }}">
+            <button type="submit" class="btn-primary" style="padding:8px 18px;font-size:0.85rem;">✅ Aceitar</button>
+          </form>
+          <form method="POST" action="{{ url_for('mentor.rejeitar_mentoria', mentoria_id=m.id) }}">
+            <button type="submit" style="padding:8px 18px;font-size:0.85rem;background:transparent;border:1px solid var(--erro);color:var(--erro);border-radius:var(--radius-sm);cursor:pointer;font-weight:600;">❌ Recusar</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- ALUNOS ATIVOS -->
+    {% set ativos = mentorias | selectattr('status','equalto','ativa') | list %}
+    <div class="dash-section-title">👨‍🎓 Meus alunos ativos ({{ ativos|length }})</div>
+    {% if ativos %}
+    <div class="cards-grid" style="margin-bottom:40px;">
+      {% for m in ativos %}
+      <div class="card" style="border-left:4px solid var(--verde);">
+        <div class="card-avatar">{{ m.aluno.nome[0] if m.aluno else '?' }}</div>
+        <h3>{{ m.aluno.nome if m.aluno else 'Aluno' }}</h3>
+        <p style="font-size:0.82rem;color:var(--cinza-medio);">{{ m.aluno.email if m.aluno else '' }}</p>
+        <span class="status status-ativa" style="margin-top:10px;display:inline-block;">ativa</span>
+        <div style="margin-top:14px;">
+          <a href="{{ url_for('sessao.agendar', mentoria_id=m.id) }}" class="btn-primary" style="padding:8px 18px;font-size:0.82rem;">📅 Agendar sessão</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div style="padding:32px;text-align:center;background:var(--branco-puro);border:1px solid var(--cinza-claro);border-radius:var(--radius);margin-bottom:40px;">
+      <div style="font-size:2.5rem;margin-bottom:8px;">📭</div>
+      <p style="color:var(--cinza-medio);">Nenhum aluno ativo ainda. Complete seu <a href="{{ url_for('mentor.perfil') }}" style="color:var(--verde);">perfil</a> para aparecer nas recomendações!</p>
+    </div>
+    {% endif %}
+
+    <!-- PRÓXIMAS SESSÕES -->
+    <div class="dash-section-title">📅 Próximas sessões</div>
+    {% if sessoes %}
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Data/Hora</th><th>Duração</th><th>Formato</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          {% for s in sessoes %}
+          <tr>
+            <td>{{ s.data_hora[:16].replace('T',' ') }}</td>
+            <td>{{ s.duracao_minutos }} min</td>
+            <td>{{ s.formato|capitalize }}</td>
+            <td><span class="status status-{{ s.status }}">{{ s.status }}</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p style="color:var(--cinza-medio);font-size:0.9rem;">Nenhuma sessão agendada.</p>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}

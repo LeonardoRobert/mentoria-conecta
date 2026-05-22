@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}Admin — MentoriaConecta{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+
+  <aside class="sidebar">
+    <div class="sidebar-user">
+      <span class="sidebar-user-name">Admin</span>
+      <span class="sidebar-user-tipo">Administrador</span>
+    </div>
+    <ul class="sidebar-nav">
+      <li><a href="{{ url_for('admin.dashboard') }}" class="active">📊 Dashboard</a></li>
+      <li><a href="{{ url_for('auth.logout') }}">🚪 Sair</a></li>
+    </ul>
+  </aside>
+
+  <div class="dash-body">
+    <div class="dash-header">
+      <h1>Painel Administrativo</h1>
+      <p>Visão geral da plataforma em tempo real.</p>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-card-number" style="color:var(--verde);">{{ stats.mentores }}</div>
+        <div class="stat-card-label">Mentores</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-number">{{ stats.alunos }}</div>
+        <div class="stat-card-label">Alunos</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-number">{{ stats.mentorias }}</div>
+        <div class="stat-card-label">Mentorias</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-number">{{ stats.sessoes }}</div>
+        <div class="stat-card-label">Sessões realizadas</div>
+      </div>
+    </div>
+
+    <!-- MENTORIAS RECENTES -->
+    <div class="dash-section-title">🔄 Mentorias recentes</div>
+    <div class="table-wrapper" style="margin-bottom:40px;">
+      <table>
+        <thead>
+          <tr><th>Mentor</th><th>Aluno</th><th>Área</th><th>Status</th><th>Ação</th></tr>
+        </thead>
+        <tbody>
+          {% for m in mentorias_recentes %}
+          <tr>
+            <td>{{ m.mentor.nome if m.mentor else '—' }}</td>
+            <td>{{ m.aluno.nome if m.aluno else '—' }}</td>
+            <td>{{ m.area_foco or '—' }}</td>
+            <td><span class="status status-{{ m.status }}">{{ m.status }}</span></td>
+            <td>
+              {% if m.status == 'pendente' %}
+              <form method="POST" action="{{ url_for('admin.aceitar_mentoria', mentoria_id=m.id) }}" style="display:inline;">
+                <button type="submit" class="btn-primary" style="padding:5px 14px;font-size:0.78rem;">Ativar</button>
+              </form>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- USUÁRIOS -->
+    <div class="dash-section-title">👥 Usuários cadastrados</div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Nome</th><th>Email</th><th>Tipo</th><th>Status</th><th>Ação</th></tr>
+        </thead>
+        <tbody>
+          {% for u in usuarios %}
+          <tr>
+            <td>{{ u.nome }}</td>
+            <td>{{ u.email }}</td>
+            <td><span class="badge">{{ u.tipo }}</span></td>
+            <td>
+              {% if u.ativo %}<span class="status status-ativa">Ativo</span>
+              {% else %}<span class="status status-cancelada">Inativo</span>{% endif %}
+            </td>
+            <td>
+              <form method="POST" action="{{ url_for('admin.toggle_ativo', usuario_id=u.id) }}" style="display:inline;">
+                <button type="submit" style="border:none;background:none;cursor:pointer;font-size:0.82rem;color:var(--verde);font-weight:600;">
+                  {{ 'Desativar' if u.ativo else 'Ativar' }}
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+{% block extra_js %}
+<script>
+  // Gráfico simples via API
+  fetch("{{ url_for('admin.api_relatorio') }}")
+    .then(r => r.json())
+    .then(data => console.log("Relatório:", data))
+    .catch(e => console.log("Erro ao carregar relatório:", e));
+</script>
+{% endblock %}
+
+{% endblock %}

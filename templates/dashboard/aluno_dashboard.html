@@ -1,97 +1,108 @@
 {% extends "base.html" %}
-{% block title %}Dashboard — MentoriaConecta{% endblock %}
-
+{% block title %}Painel do Aluno — MentoriaConecta{% endblock %}
 {% block content %}
 <div class="dashboard-layout">
 
-  <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="sidebar-user">
       <span class="sidebar-user-name">{{ usuario.nome.split()[0] }}</span>
-      <span class="sidebar-user-tipo">{{ usuario.tipo }}</span>
+      <span class="sidebar-user-tipo">Aluno</span>
     </div>
     <ul class="sidebar-nav">
-      <li><a href="{{ url_for('aluno.dashboard') }}" class="active">🏠 Dashboard</a></li>
-      <li><a href="{{ url_for('aluno.recomendacoes') }}">🤝 Recomendações</a></li>
-      <li><a href="{{ url_for('mentor.lista') }}">👥 Mentores</a></li>
-      <li><a href="{{ url_for('aluno.perfil') }}">⚙️ Meu Perfil</a></li>
-      <li><a href="{{ url_for('auth.logout') }}">🚪 Sair</a></li>
+      <li><a href="{{ url_for('aluno.dashboard') }}" class="active">Painel</a></li>
+      {% if not mentorias or mentorias | selectattr('status','equalto','ativa') | list | length == 0 %}
+      <li><a href="{{ url_for('aluno.encontrar_mentor') }}">Encontrar Mentor</a></li>
+      {% endif %}
+      <li><a href="{{ url_for('sessao.minhas_sessoes') }}">Minhas Sessões</a></li>
+      <li><a href="{{ url_for('aluno.perfil') }}">Meu Perfil</a></li>
+      <div class="sidebar-divider"></div>
+      <li><a href="{{ url_for('auth.logout') }}">Sair</a></li>
     </ul>
   </aside>
 
-  <!-- CONTEÚDO -->
   <div class="dash-body">
     <div class="dash-header">
-      <h1>Olá, {{ usuario.nome.split()[0] }}! 👋</h1>
-      <p>Acompanhe suas mentorias e próximas sessões.</p>
+      <h1>Bem-vindo, {{ usuario.nome.split()[0] }}</h1>
+      <p>Acompanhe suas mentorias e inscreva-se nas próximas sessões.</p>
     </div>
 
-    <!-- STATS -->
     <div class="stats-row">
       <div class="stat-card">
         <div class="stat-card-number">{{ stats.total_mentorias }}</div>
-        <div class="stat-card-label">Mentorias</div>
+        <div class="stat-card-label">Mentorias ativas</div>
       </div>
       <div class="stat-card">
         <div class="stat-card-number">{{ stats.total_sessoes }}</div>
-        <div class="stat-card-label">Sessões agendadas</div>
+        <div class="stat-card-label">Sessões inscritas</div>
       </div>
     </div>
 
-    <!-- RECOMENDAÇÕES -->
-    {% if recomendacoes %}
-    <div class="dash-section-title">🎯 Mentores recomendados para você</div>
-    <div class="cards-grid" style="margin-bottom:40px;">
-      {% for m in recomendacoes %}
-      <div class="card">
-        <div class="card-avatar">
-          {% if m.foto_url %}
-            <img src="{{ m.foto_url }}" alt="{{ m.nome }}">
-          {% else %}
-            {{ m.nome[0] }}
-          {% endif %}
+    <!-- SEM MENTOR: mostrar recomendações -->
+    {% set ativos = mentorias | selectattr('status','equalto','ativa') | list %}
+    {% if not ativos and not (mentorias | selectattr('status','equalto','pendente') | list) %}
+      <div class="alerta alerta-info" style="margin-bottom:32px;">
+        Você ainda não possui um mentor. <a href="{{ url_for('aluno.encontrar_mentor') }}" style="color:var(--marinho);font-weight:700;">Encontre o mentor ideal para você →</a>
+      </div>
+      {% if recomendacoes %}
+      <div class="dash-section-title">Mentores Recomendados</div>
+      <div class="cards-grid" style="margin-bottom:40px;">
+        {% for m in recomendacoes %}
+        <div class="card">
+          <div class="card-avatar">{{ m.nome[0] }}</div>
+          <h3>{{ m.nome }}</h3>
+          <p>{{ m.bio[:80] ~ '...' if m.bio and m.bio|length > 80 else (m.bio or 'Mentor voluntário.') }}</p>
+          <div style="margin-top:10px;"><span class="badge-score">{{ m.compatibilidade }}% compatível</span></div>
+          <div style="margin-top:16px;">
+            <form method="POST" action="{{ url_for('aluno.solicitar_mentoria', mentor_id=m.id) }}">
+              <input type="hidden" name="area_foco" value="Geral">
+              <button type="submit" class="btn-sm" style="width:100%;text-align:center;">Solicitar mentoria</button>
+            </form>
+          </div>
         </div>
-        <h3>{{ m.nome }}</h3>
-        <p>{{ m.bio[:80] ~ '...' if m.bio and m.bio|length > 80 else m.bio or 'Sem bio.' }}</p>
-        <div style="margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-          <span class="badge-score">{{ m.compatibilidade }}% compatível</span>
-          {% if m.media_avaliacao %}
-          <span class="stars">★ {{ m.media_avaliacao }}</span>
-          {% endif %}
-        </div>
-        <div style="margin-top:14px;">
-          <form method="POST" action="{{ url_for('aluno.solicitar_mentoria', mentor_id=m.id) }}">
-            <input type="hidden" name="area_foco" value="Geral">
-            <button type="submit" class="btn-primary" style="padding:8px 18px;font-size:0.85rem;">Solicitar mentoria</button>
-          </form>
-        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+    {% elif mentorias | selectattr('status','equalto','pendente') | list %}
+      <!-- PENDENTE -->
+      <div class="dash-section-title">Solicitações Enviadas</div>
+      {% for m in mentorias if m.status == 'pendente' %}
+      <div class="alerta alerta-aviso" style="margin-bottom:12px;">
+        Sua solicitação para <strong>{{ m.mentor.nome if m.mentor else 'o mentor' }}</strong> está aguardando resposta.
       </div>
       {% endfor %}
-    </div>
     {% endif %}
 
-    <!-- MINHAS MENTORIAS -->
-    <div class="dash-section-title">📚 Minhas mentorias</div>
-    {% if mentorias %}
+    <!-- SESSÕES DISPONÍVEIS (mentor ativo) -->
+    {% if sessoes_disponiveis %}
+    <div class="dash-section-title">Sessões Disponíveis</div>
     <div class="table-wrapper" style="margin-bottom:40px;">
       <table>
-        <thead>
-          <tr>
-            <th>Mentor</th>
-            <th>Área de foco</th>
-            <th>Status</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
+        <thead><tr><th>Tema</th><th>Mentor</th><th>Data / Hora</th><th>Vagas</th><th>Formato</th><th>Ação</th></tr></thead>
         <tbody>
-          {% for m in mentorias %}
+          {% for s in sessoes_disponiveis %}
           <tr>
-            <td><strong>{{ m.mentor.nome if m.mentor else '—' }}</strong></td>
-            <td>{{ m.area_foco or '—' }}</td>
-            <td><span class="status status-{{ m.status }}">{{ m.status }}</span></td>
+            <td><strong>{{ s.tema or 'Sessão' }}</strong></td>
+            <td>{{ s.mentor_nome }}</td>
+            <td>{{ s.data_hora[:16].replace('T',' ') }}</td>
             <td>
-              {% if m.status == 'ativa' %}
-              <a href="{{ url_for('sessao.agendar', mentoria_id=m.id) }}" style="color:var(--verde);font-weight:600;font-size:0.85rem;text-decoration:none;">Agendar sessão →</a>
+              {% if s.vagas_livres > 0 %}
+                <span style="color:var(--sucesso);font-weight:600;">{{ s.vagas_livres }} vagas</span>
+              {% else %}
+                <span class="status status-esgotada">Esgotado</span>
+              {% endif %}
+              <div class="vagas-bar"><div class="vagas-fill {% if s.vagas_livres == 0 %}lotado{% endif %}" style="width:{{ ((s.inscritos / (s.vagas_total or 10)) * 100)|int }}%"></div></div>
+            </td>
+            <td>{{ s.formato|capitalize }}</td>
+            <td>
+              {% if s.ja_inscrito %}
+                <span class="status status-ativa">Inscrito</span>
+              {% elif s.vagas_livres > 0 %}
+                <form method="POST" action="{{ url_for('sessao.inscrever', sessao_id=s.id) }}">
+                  <button type="submit" class="btn-dourado">Inscrever-se</button>
+                </form>
+              {% else %}
+                <span style="color:var(--texto-claro);font-size:0.82rem;font-style:italic;">Sem vagas</span>
               {% endif %}
             </td>
           </tr>
@@ -99,35 +110,27 @@
         </tbody>
       </table>
     </div>
-    {% else %}
-    <div style="padding:32px;text-align:center;background:var(--branco-puro);border:1px solid var(--cinza-claro);border-radius:var(--radius);margin-bottom:40px;">
-      <div style="font-size:2.5rem;margin-bottom:8px;">🤝</div>
-      <p style="color:var(--cinza-medio);">Você ainda não tem mentorias. <a href="{{ url_for('aluno.recomendacoes') }}" style="color:var(--verde);font-weight:600;">Ver mentores recomendados →</a></p>
+    {% elif ativos %}
+    <div class="dash-section-title">Sessões Disponíveis</div>
+    <div class="empty-state" style="margin-bottom:40px;">
+      <p>Seu mentor ainda não criou sessões. Aguarde novas datas serem publicadas.</p>
     </div>
     {% endif %}
 
-    <!-- PRÓXIMAS SESSÕES -->
-    <div class="dash-section-title">📅 Próximas sessões</div>
-    {% if sessoes %}
-    <div class="table-wrapper">
-      <table>
-        <thead>
-          <tr><th>Data/Hora</th><th>Formato</th><th>Status</th><th>Link</th></tr>
-        </thead>
-        <tbody>
-          {% for s in sessoes %}
-          <tr>
-            <td>{{ s.data_hora[:16].replace('T',' ') }}</td>
-            <td>{{ s.formato|capitalize }}</td>
-            <td><span class="status status-{{ s.status }}">{{ s.status }}</span></td>
-            <td>{% if s.link_reuniao %}<a href="{{ s.link_reuniao }}" target="_blank" style="color:var(--verde);">Entrar →</a>{% endif %}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+    <!-- MINHA MENTORIA ATIVA -->
+    {% if ativos %}
+    <div class="dash-section-title">Minha Mentoria</div>
+    <div class="cards-grid">
+      {% for m in ativos %}
+      <div class="card">
+        <div class="card-avatar">{{ m.mentor.nome[0] if m.mentor else '?' }}</div>
+        <h3>{{ m.mentor.nome if m.mentor else 'Mentor' }}</h3>
+        <p style="font-size:0.84rem;color:var(--texto-claro);">{{ m.mentor.email if m.mentor else '' }}</p>
+        {% if m.mentor.bio %}<p style="margin-top:8px;font-size:0.85rem;font-style:italic;">{{ m.mentor.bio[:100] }}...</p>{% endif %}
+        <div style="margin-top:12px;"><span class="status status-ativa">ativa</span></div>
+      </div>
+      {% endfor %}
     </div>
-    {% else %}
-    <p style="color:var(--cinza-medio);font-size:0.9rem;">Nenhuma sessão agendada.</p>
     {% endif %}
 
   </div>

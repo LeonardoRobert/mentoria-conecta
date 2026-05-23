@@ -1,34 +1,29 @@
 {% extends "base.html" %}
 {% block title %}Cadastro — MentoriaConecta{% endblock %}
 {% block content %}
-
-<div class="form-container" style="max-width:600px;">
+<div class="form-container" style="max-width:620px;">
   <div class="form-card">
-    <div class="form-title">Crie sua conta 🎓</div>
-    <div class="form-subtitle">Junte-se à plataforma e comece sua jornada de aprendizado.</div>
+    <div class="form-title">Crie sua conta</div>
+    <div class="form-subtitle">Preencha os dados abaixo para ingressar na plataforma.</div>
+    {% if erro %}<div class="form-error">{{ erro }}</div>{% endif %}
 
-    {% if erro %}
-    <div class="form-error">{{ erro }}</div>
-    {% endif %}
-
-    <form method="POST" action="{{ url_for('auth.registro') }}">
-
+    <form method="POST">
       <div class="form-group">
-        <label for="tipo">Quero me cadastrar como</label>
-        <select id="tipo" name="tipo" required onchange="atualizarLabel()">
+        <label for="tipo">Perfil de acesso</label>
+        <select id="tipo" name="tipo" required onchange="atualizarInterface()">
           <option value="">Selecione...</option>
-          <option value="aluno">Aluno — quero ser mentorado</option>
-          <option value="mentor">Mentor — quero orientar alunos</option>
+          <option value="aluno" {% if request.args.get('tipo') == 'aluno' %}selected{% endif %}>Aluno — desejo ser mentorado</option>
+          <option value="mentor" {% if request.args.get('tipo') == 'mentor' %}selected{% endif %}>Mentor — desejo orientar alunos</option>
         </select>
       </div>
 
       <div class="form-group">
         <label for="nome">Nome completo</label>
-        <input type="text" id="nome" name="nome" placeholder="João Silva" required>
+        <input type="text" id="nome" name="nome" placeholder="João da Silva" required>
       </div>
 
       <div class="form-group">
-        <label for="email">Email</label>
+        <label for="email">E-mail</label>
         <input type="email" id="email" name="email" placeholder="seu@email.com" required>
       </div>
 
@@ -37,38 +32,36 @@
         <input type="password" id="senha" name="senha" placeholder="Mínimo 8 caracteres" required minlength="8">
       </div>
 
-      <div style="display:grid;grid-template-columns:1fr 80px;gap:12px;">
+      <div style="display:grid;grid-template-columns:1fr 90px;gap:12px;">
         <div class="form-group">
           <label for="cidade">Cidade</label>
           <input type="text" id="cidade" name="cidade" placeholder="Rio de Janeiro">
         </div>
         <div class="form-group">
           <label for="estado">UF</label>
-          <input type="text" id="estado" name="estado" placeholder="RJ" maxlength="2">
+          <input type="text" id="estado" name="estado" placeholder="RJ" maxlength="2" style="text-transform:uppercase;">
         </div>
       </div>
 
       <div class="form-group">
-        <label for="bio">Bio / Objetivos <span style="font-weight:400;color:#999;">(opcional)</span></label>
-        <textarea id="bio" name="bio" placeholder="Conte um pouco sobre você..."></textarea>
+        <label for="bio">Apresentação <span style="font-weight:400;text-transform:none;font-style:italic;">(opcional)</span></label>
+        <textarea id="bio" name="bio" placeholder="Conte brevemente sobre você, sua formação e objetivos..."></textarea>
       </div>
 
-      <!-- HABILIDADES -->
       {% if habilidades %}
-      <div class="form-group">
-        <label id="label-habilidades">Minhas habilidades / áreas de interesse</label>
-        <p style="font-size:0.82rem;color:#999;margin-bottom:10px;" id="hint-habilidades">
-          Selecione as áreas que você domina (mentor) ou quer aprender (aluno). Isso melhora as recomendações.
+      <div class="form-group" id="secao-habilidades">
+        <label id="label-hab">Áreas de interesse</label>
+        <p style="font-size:0.82rem;color:var(--texto-claro);margin-bottom:14px;font-style:italic;" id="hint-hab">
+          Selecione as áreas para receber recomendações mais precisas.
         </p>
-
         {% set categorias = habilidades | map(attribute='categoria') | unique | list %}
         {% for categoria in categorias %}
-        <div style="margin-bottom:14px;">
-          <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--cinza-medio);margin-bottom:8px;">{{ categoria }}</div>
+        <div style="margin-bottom:16px;">
+          <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--marinho);margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--borda);">{{ categoria }}</div>
           <div style="display:flex;flex-wrap:wrap;gap:8px;">
             {% for h in habilidades if h.categoria == categoria %}
-            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;background:var(--branco);border:1px solid var(--cinza-claro);padding:6px 14px;border-radius:20px;font-size:0.85rem;transition:all .15s;" class="habilidade-tag">
-              <input type="checkbox" name="habilidades" value="{{ h.id }}" style="display:none;">
+            <label class="habilidade-tag" id="tag-{{ h.id }}">
+              <input type="checkbox" name="habilidades" value="{{ h.id }}" style="display:none;" onchange="toggleTag({{ h.id }})">
               {{ h.nome }}
             </label>
             {% endfor %}
@@ -78,50 +71,40 @@
       </div>
       {% endif %}
 
-      <button type="submit" class="btn-full">Criar conta grátis</button>
+      <button type="submit" class="btn-full">Criar conta</button>
     </form>
-
-    <div class="form-footer">
-      Já tem conta? <a href="{{ url_for('auth.login') }}">Fazer login</a>
-    </div>
+    <div class="form-footer">Já possui conta? <a href="{{ url_for('auth.login') }}">Fazer login</a></div>
   </div>
 </div>
 
 {% block extra_js %}
-<style>
-  .habilidade-tag:has(input:checked) {
-    background: var(--verde-claro) !important;
-    border-color: var(--verde) !important;
-    color: var(--verde-escuro);
-    font-weight: 600;
-  }
-</style>
 <script>
-  function atualizarLabel() {
-    const tipo = document.getElementById('tipo').value;
-    const label = document.getElementById('label-habilidades');
-    const hint = document.getElementById('hint-habilidades');
-    if (tipo === 'mentor') {
-      label.textContent = 'Áreas que você ensina / domina';
-      hint.textContent = 'Selecione suas especialidades. Alunos serão recomendados com base nelas.';
-    } else if (tipo === 'aluno') {
-      label.textContent = 'Áreas que você quer aprender';
-      hint.textContent = 'Selecione o que você busca aprender. Vamos recomendar mentores compatíveis.';
-    }
+function atualizarInterface() {
+  const tipo = document.getElementById('tipo').value;
+  const label = document.getElementById('label-hab');
+  const hint = document.getElementById('hint-hab');
+  if (!label) return;
+  if (tipo === 'mentor') {
+    label.textContent = 'Áreas em que você pode ensinar';
+    hint.textContent = 'Selecione suas especialidades. Alunos compatíveis serão recomendados a você.';
+  } else {
+    label.textContent = 'Áreas que deseja aprender';
+    hint.textContent = 'Selecione o que você busca aprender. Recomendaremos mentores compatíveis.';
   }
+}
 
-  // Visual do checkbox ao clicar
-  document.querySelectorAll('.habilidade-tag').forEach(tag => {
-    tag.addEventListener('click', () => {
-      const cb = tag.querySelector('input');
-      setTimeout(() => {
-        tag.style.background = cb.checked ? 'var(--verde-claro)' : '';
-        tag.style.borderColor = cb.checked ? 'var(--verde)' : '';
-        tag.style.color = cb.checked ? 'var(--verde-escuro)' : '';
-      }, 10);
-    });
-  });
+function toggleTag(id) {
+  const tag = document.getElementById('tag-' + id);
+  const cb = tag.querySelector('input');
+  if (cb.checked) {
+    tag.classList.add('selecionada');
+  } else {
+    tag.classList.remove('selecionada');
+  }
+}
+
+// Rodar na carga se já tiver tipo selecionado
+window.addEventListener('DOMContentLoaded', atualizarInterface);
 </script>
 {% endblock %}
-
 {% endblock %}

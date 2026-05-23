@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Encontrar Mentor — MentoriaConecta{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="section-title">Encontrar um Mentor</div>
+  <div class="section-divider"></div>
+  <div class="section-subtitle">Mentores ordenados por compatibilidade com o seu perfil</div>
+
+  {% if mentores %}
+  <div class="cards-grid">
+    {% for m in mentores %}
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
+        <div class="card-avatar" style="margin-bottom:0;">{{ m.nome[0] }}</div>
+        {% if m.compatibilidade %}<span class="badge-score">{{ m.compatibilidade }}%</span>{% endif %}
+      </div>
+      <h3>{{ m.nome }}</h3>
+      {% if m.cidade %}<p style="font-size:0.78rem;color:var(--texto-claro);margin-bottom:6px;">{{ m.cidade }}{% if m.estado %}, {{ m.estado }}{% endif %}</p>{% endif %}
+      <p>{{ m.bio[:100] ~ '...' if m.bio and m.bio|length > 100 else (m.bio or 'Mentor voluntário.') }}</p>
+      {% if m.get('media_avaliacao') %}<div class="stars" style="margin-top:8px;">★ {{ m.media_avaliacao }}</div>{% endif %}
+
+      <div style="margin-top:18px;">
+        {% if m.id in ids_solicitados %}
+          <div class="alerta alerta-aviso" style="padding:8px 12px;font-size:0.82rem;margin:0;">Solicitação já enviada</div>
+        {% else %}
+          <form method="POST" action="{{ url_for('aluno.solicitar_mentoria', mentor_id=m.id) }}">
+            <div style="margin-bottom:8px;">
+              <input type="text" name="area_foco" placeholder="Área de interesse (ex: Python, Redação)" style="width:100%;padding:8px 12px;border:1px solid var(--borda);border-radius:var(--radius);font-family:var(--font-body);font-size:0.85rem;background:var(--creme);">
+            </div>
+            <button type="submit" class="btn-sm" style="width:100%;text-align:center;">Solicitar mentoria</button>
+          </form>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <p>Nenhum mentor disponível no momento. Complete seu <a href="{{ url_for('aluno.perfil') }}">perfil e habilidades</a> para receber recomendações melhores.</p>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

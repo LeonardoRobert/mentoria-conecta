@@ -1,33 +1,29 @@
 {% extends "base.html" %}
-{% block title %}MentoriaConecta — Conectando futuros{% endblock %}
-
+{% block title %}MentoriaConecta — Educação que transforma{% endblock %}
 {% block content %}
 
-<!-- HERO -->
 <section class="hero">
   <div class="hero-text">
     <span class="hero-tag">ODS 4 · Educação de Qualidade</span>
-    <h1>Conecte-se com quem pode <em>transformar</em> sua trajetória</h1>
-    <p>Plataforma gratuita que conecta alunos de baixa renda com mentores voluntários qualificados — porque todo talento merece uma chance.</p>
+    <h1>Onde o conhecimento encontra <em>quem precisa</em> dele</h1>
+    <p>Conectamos alunos de baixa renda com mentores voluntários qualificados. Porque acesso à educação de qualidade não deve ser privilégio de poucos.</p>
     <div class="hero-ctas">
       <a href="{{ url_for('auth.registro') }}" class="btn-primary">Quero ser mentorado</a>
-      <a href="{{ url_for('mentor.lista') }}" class="btn-secondary">Ver mentores →</a>
+      <a href="{{ url_for('auth.registro') }}?tipo=mentor" class="btn-secondary">Quero ser mentor</a>
     </div>
   </div>
-  <div class="hero-visual" style="flex:1;display:flex;justify-content:center;">
-    <div style="background:rgba(0,179,126,.08);border:1px solid rgba(0,179,126,.2);border-radius:20px;padding:40px;text-align:center;max-width:320px;width:100%;">
-      <div style="font-size:4rem;margin-bottom:16px;">🎓</div>
-      <div style="font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--branco);margin-bottom:8px;">Mentoria personalizada</div>
-      <div style="font-size:0.85rem;color:#888;line-height:1.6;">Sistema inteligente de recomendação conecta você ao mentor ideal pelo coeficiente de compatibilidade de habilidades.</div>
+  <div style="flex:1;display:flex;justify-content:center;">
+    <div style="border:1px solid rgba(201,168,76,.3);padding:44px 40px;max-width:320px;width:100%;background:rgba(201,168,76,.04);">
+      <div style="font-family:var(--font-display);font-size:1.1rem;color:var(--dourado);margin-bottom:16px;font-style:italic;">"A educação é a arma mais poderosa que você pode usar para mudar o mundo."</div>
+      <div style="font-size:0.8rem;color:#6a8094;letter-spacing:.06em;text-transform:uppercase;">Nelson Mandela</div>
     </div>
   </div>
 </section>
 
-<!-- STATS BAR -->
 <div class="stats-bar">
   <div class="stat-item">
     <div class="stat-number">{{ stats.mentores }}</div>
-    <div class="stat-label">Mentores Ativos</div>
+    <div class="stat-label">Mentores Voluntários</div>
   </div>
   <div class="stat-item">
     <div class="stat-number">{{ stats.alunos }}</div>
@@ -39,43 +35,43 @@
   </div>
 </div>
 
-<!-- COMO FUNCIONA -->
 <section class="section">
   <div class="section-title">Como funciona</div>
-  <div class="section-subtitle">Três passos para começar sua jornada</div>
-  <div class="cards-grid" style="grid-template-columns:repeat(auto-fill,minmax(240px,1fr));">
+  <div class="section-divider"></div>
+  <div class="section-subtitle">Três passos para começar sua jornada de aprendizado</div>
+  <div class="cards-grid" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr));">
     <div class="card">
-      <div style="font-size:2rem;margin-bottom:12px;">📝</div>
-      <h3>1. Cadastre-se</h3>
-      <p>Crie sua conta como aluno ou mentor em menos de 2 minutos. Informe suas habilidades e objetivos.</p>
+      <div style="font-family:var(--font-display);font-size:2rem;color:var(--dourado);margin-bottom:12px;font-weight:700;">I.</div>
+      <h3>Cadastre-se</h3>
+      <p>Crie sua conta como aluno ou mentor. Informe suas áreas de interesse ou especialidade para que possamos fazer a melhor conexão.</p>
     </div>
     <div class="card">
-      <div style="font-size:2rem;margin-bottom:12px;">🤝</div>
-      <h3>2. Conecte-se</h3>
-      <p>Nosso algoritmo de recomendação (Coeficiente de Jaccard) sugere os mentores mais compatíveis com seu perfil.</p>
+      <div style="font-family:var(--font-display);font-size:2rem;color:var(--dourado);margin-bottom:12px;font-weight:700;">II.</div>
+      <h3>Conecte-se</h3>
+      <p>Nosso algoritmo baseado no Coeficiente de Jaccard recomenda os mentores mais compatíveis com seu perfil e objetivos.</p>
     </div>
     <div class="card">
-      <div style="font-size:2rem;margin-bottom:12px;">🚀</div>
-      <h3>3. Evolua</h3>
-      <p>Agende sessões, receba feedback e acompanhe seu progresso no dashboard personalizado.</p>
+      <div style="font-family:var(--font-display);font-size:2rem;color:var(--dourado);margin-bottom:12px;font-weight:700;">III.</div>
+      <h3>Participe</h3>
+      <p>Inscreva-se nas sessões abertas pelo seu mentor, com vagas limitadas para garantir atenção individualizada.</p>
     </div>
   </div>
 </section>
 
-<!-- ODS SECTION -->
-<section class="section" style="background:var(--cinza-escuro);color:var(--branco);">
-  <div class="section-title" style="color:var(--branco);">Impacto social · ODS 4</div>
-  <div class="section-subtitle" style="color:#888;">Alinhado aos Objetivos de Desenvolvimento Sustentável da ONU</div>
+<section class="section" style="background:var(--marinho-escuro);border-top:2px solid var(--dourado);border-bottom:2px solid var(--dourado);">
+  <div class="section-title" style="color:var(--creme);">Impacto Social</div>
+  <div class="section-divider"></div>
+  <div class="section-subtitle" style="color:#8fa0b4;">Alinhado ao Objetivo de Desenvolvimento Sustentável nº 4 da ONU</div>
   <div class="cards-grid">
-    <div class="card" style="background:#1a1a1a;border-color:#2a2a2a;">
-      <div style="color:var(--verde);font-size:1.4rem;font-weight:800;font-family:var(--font-display);margin-bottom:12px;">ODS 4</div>
-      <h3 style="color:var(--branco);margin-bottom:8px;">Educação de Qualidade</h3>
-      <p style="color:#888;">Garantir educação inclusiva, equitativa e de qualidade e promover oportunidades de aprendizagem ao longo da vida para todos.</p>
+    <div class="card" style="background:rgba(255,255,255,.04);border-color:rgba(201,168,76,.2);border-top-color:var(--dourado);">
+      <div style="color:var(--dourado);font-family:var(--font-display);font-size:1.3rem;font-weight:700;margin-bottom:12px;">ODS 4</div>
+      <h3 style="color:var(--creme);margin-bottom:8px;">Educação de Qualidade</h3>
+      <p style="color:#8fa0b4;">Garantir educação inclusiva, equitativa e de qualidade, promovendo oportunidades de aprendizagem ao longo da vida para todos.</p>
     </div>
-    <div class="card" style="background:#1a1a1a;border-color:#2a2a2a;">
-      <div style="color:var(--verde);font-size:1.4rem;font-weight:800;font-family:var(--font-display);margin-bottom:12px;">Impacto</div>
-      <h3 style="color:var(--branco);margin-bottom:8px;">Redução de Desigualdades</h3>
-      <p style="color:#888;">Conectamos alunos de baixa renda com profissionais qualificados, reduzindo a barreira de acesso ao conhecimento e mentoria de qualidade.</p>
+    <div class="card" style="background:rgba(255,255,255,.04);border-color:rgba(201,168,76,.2);border-top-color:var(--dourado);">
+      <div style="color:var(--dourado);font-family:var(--font-display);font-size:1.3rem;font-weight:700;margin-bottom:12px;">Nossa Missão</div>
+      <h3 style="color:var(--creme);margin-bottom:8px;">Democratizar o Acesso</h3>
+      <p style="color:#8fa0b4;">Eliminamos a barreira financeira ao acesso à mentoria qualificada, conectando talento com oportunidade independentemente da condição socioeconômica.</p>
     </div>
   </div>
 </section>

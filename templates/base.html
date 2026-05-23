@@ -5,31 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}MentoriaConecta{% endblock %}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     {% block extra_css %}{% endblock %}
 </head>
 <body>
 
-<!-- NAVBAR -->
 <nav class="navbar">
     <a href="{{ url_for('main.index') }}" class="navbar-brand">
-        <span class="brand-icon">◆</span> MentoriaConecta
+        <span class="brand-icon">❧</span> MentoriaConecta
     </a>
     <div class="navbar-links">
-        <a href="{{ url_for('mentor.lista') }}">Mentores</a>
         {% if usuario %}
-            <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
-            <span class="navbar-user">Olá, {{ usuario.nome.split()[0] }}</span>
+            <span class="navbar-user">{{ usuario.nome.split()[0] }}</span>
+            <a href="{{ url_for('main.dashboard') }}">Painel</a>
             <a href="{{ url_for('auth.logout') }}" class="btn-nav-outline">Sair</a>
         {% else %}
+            <a href="{{ url_for('mentor.lista') }}">Conheça os Mentores</a>
             <a href="{{ url_for('auth.login') }}" class="btn-nav-outline">Entrar</a>
-            <a href="{{ url_for('auth.registro') }}" class="btn-nav-fill">Cadastrar</a>
+            <a href="{{ url_for('auth.registro') }}" class="btn-nav-fill">Cadastrar-se</a>
         {% endif %}
     </div>
 </nav>
 
-<!-- FLASH MESSAGES -->
 {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
         <div class="flash-container">
@@ -40,16 +38,14 @@
     {% endif %}
 {% endwith %}
 
-<!-- CONTEÚDO PRINCIPAL -->
 <main class="main-content">
     {% block content %}{% endblock %}
 </main>
 
-<!-- FOOTER -->
 <footer class="footer">
     <div class="footer-inner">
-        <span>◆ MentoriaConecta — ODS 4: Educação de Qualidade</span>
-        <span>Projeto Extensionista · UNIG EAD · 2025</span>
+        <span>❧ MentoriaConecta — Projeto Extensionista UNIG EAD · 2025</span>
+        <span>ODS 4 · Educação de Qualidade para Todos</span>
     </div>
 </footer>
 

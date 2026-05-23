@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Minhas Sessões — MentoriaConecta{% endblock %}
+{% block content %}
+<div class="dashboard-layout">
+  <aside class="sidebar">
+    <div class="sidebar-user">
+      <span class="sidebar-user-name">{{ usuario.nome.split()[0] }}</span>
+      <span class="sidebar-user-tipo">Mentor</span>
+    </div>
+    <ul class="sidebar-nav">
+      <li><a href="{{ url_for('mentor.dashboard') }}">Painel</a></li>
+      <li><a href="{{ url_for('sessao.minhas_sessoes') }}" class="active">Minhas Sessões</a></li>
+      <li><a href="{{ url_for('mentor.perfil') }}">Meu Perfil</a></li>
+      <div class="sidebar-divider"></div>
+      <li><a href="{{ url_for('auth.logout') }}">Sair</a></li>
+    </ul>
+  </aside>
+  <div class="dash-body">
+    <div class="dash-header">
+      <h1>Minhas Sessões</h1>
+      <p>Gerencie todas as sessões que você criou.</p>
+    </div>
+    {% if sessoes %}
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Tema</th><th>Data / Hora</th><th>Vagas</th><th>Inscritos</th><th>Formato</th><th>Status</th><th>Ação</th></tr></thead>
+        <tbody>
+          {% for s in sessoes %}
+          <tr>
+            <td><strong>{{ s.tema or 'Sessão' }}</strong></td>
+            <td>{{ s.data_hora[:16].replace('T',' ') }}</td>
+            <td>{{ s.vagas_total }}</td>
+            <td>
+              {{ s.inscritos }}
+              <div class="vagas-bar"><div class="vagas-fill {% if s.vagas_livres == 0 %}lotado{% endif %}" style="width:{{ ((s.inscritos / (s.vagas_total or 10)) * 100)|int }}%"></div></div>
+            </td>
+            <td>{{ s.formato|capitalize }}</td>
+            <td><span class="status status-{{ s.status }}">{{ s.status }}</span></td>
+            <td>
+              {% if s.status == 'agendada' %}
+              <form method="POST" action="{{ url_for('sessao.cancelar', sessao_id=s.id) }}" style="display:inline;">
+                <button type="submit" class="btn-perigo" onclick="return confirm('Cancelar esta sessão?')">Cancelar</button>
+              </form>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <p>Nenhuma sessão criada ainda. Vá ao <a href="{{ url_for('mentor.dashboard') }}">painel</a> e crie uma sessão para seus alunos.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Criar Sessão — MentoriaConecta{% endblock %}
+{% block content %}
+<div class="form-container" style="max-width:560px;">
+  <div class="form-card">
+    <div class="form-title">Nova Sessão</div>
+    <div class="form-subtitle">Defina tema, data, vagas e formato. Seus alunos poderão se inscrever.</div>
+
+    <form method="POST">
+      <div class="form-group">
+        <label>Tema da sessão</label>
+        <input type="text" name="tema" placeholder="Ex: Introdução ao Python, Redação Dissertativa..." required>
+      </div>
+      <div class="form-group">
+        <label>Data e horário</label>
+        <input type="datetime-local" name="data_hora" required>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-group">
+          <label>Duração</label>
+          <select name="duracao_minutos">
+            <option value="30">30 minutos</option>
+            <option value="60" selected>1 hora</option>
+            <option value="90">1h30</option>
+            <option value="120">2 horas</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Vagas disponíveis</label>
+          <input type="number" name="vagas_total" value="10" min="1" max="100" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Formato</label>
+        <select name="formato" id="formato" onchange="toggleLink()">
+          <option value="online">Online</option>
+          <option value="presencial">Presencial</option>
+        </select>
+      </div>
+      <div class="form-group" id="campo-link">
+        <label>Link da reunião <span style="font-weight:400;font-style:italic;">(opcional)</span></label>
+        <input type="url" name="link_reuniao" placeholder="https://meet.google.com/...">
+      </div>
+      <div class="form-group" id="campo-local" style="display:none;">
+        <label>Local</label>
+        <input type="text" name="local" placeholder="Endereço ou ponto de referência">
+      </div>
+      <div class="form-group">
+        <label>Observações <span style="font-weight:400;font-style:italic;">(opcional)</span></label>
+        <textarea name="notas" placeholder="Pré-requisitos, materiais necessários..."></textarea>
+      </div>
+      <button type="submit" class="btn-full">Publicar sessão</button>
+    </form>
+    <div class="form-footer"><a href="{{ url_for('mentor.dashboard') }}" style="color:var(--texto-claro);">← Voltar ao painel</a></div>
+  </div>
+</div>
+{% block extra_js %}
+<script>
+function toggleLink() {
+  const f = document.getElementById('formato').value;
+  document.getElementById('campo-link').style.display = f === 'online' ? 'block' : 'none';
+  document.getElementById('campo-local').style.display = f === 'presencial' ? 'block' : 'none';
+}
+</script>
+{% endblock %}
+{% endblock %}

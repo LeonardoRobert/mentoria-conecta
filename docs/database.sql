@@ -167,3 +167,44 @@ LEFT JOIN feedbacks f ON f.avaliado_id = u.id
 WHERE u.tipo = 'mentor' AND u.ativo = TRUE
 GROUP BY u.id, u.nome, u.email, u.cidade, u.estado, u.bio, u.foto_url
 ORDER BY media_avaliacao DESC NULLS LAST, total_sessoes DESC;
+
+-- ============================================================
+-- ATUALIZAÇÃO: tabela de inscrições em sessões (vagas)
+-- Execute este bloco se já rodou o SQL anterior
+-- ============================================================
+
+-- Remove coluna antiga de agendamento individual se existir
+-- ALTER TABLE sessoes DROP COLUMN IF EXISTS aluno_id;
+
+-- TABELA: inscricoes_sessao (aluno se inscreve em vagas abertas pelo mentor)
+CREATE TABLE IF NOT EXISTS inscricoes_sessao (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    sessao_id UUID REFERENCES sessoes(id) ON DELETE CASCADE,
+    aluno_id UUID REFERENCES usuarios(id) ON DELETE CASCADE,
+    status VARCHAR(20) DEFAULT 'inscrito' CHECK (status IN ('inscrito', 'presente', 'faltou', 'cancelado')),
+    criado_em TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    UNIQUE(sessao_id, aluno_id)
+);
+
+-- Adiciona colunas de vagas e tema na tabela sessoes (se não existirem)
+ALTER TABLE sessoes ADD COLUMN IF NOT EXISTS vagas_total INT DEFAULT 10;
+ALTER TABLE sessoes ADD COLUMN IF NOT EXISTS tema VARCHAR(200);
+
+-- RLS para nova tabela
+ALTER TABLE inscricoes_sessao ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "allow_all_inscricoes" ON inscricoes_sessao FOR ALL USING (true) WITH CHECK (true);
+
+-- VIEW: sessões com vagas disponíveis
+CREATE OR REPLACE VIEW vw_sessoes_abertas AS
+SELECT
+    s.*,
+    u.nome AS mentor_nome,
+    u.email AS mentor_email,
+    COUNT(i.id) AS inscritos,
+    (s.vagas_total - COUNT(i.id)) AS vagas_livres
+FROM sessoes s
+JOIN mentorias m ON m.id = s.mentoria_id
+JOIN usuarios u ON u.id = m.mentor_id
+LEFT JOIN inscricoes_sessao i ON i.sessao_id = s.id AND i.status != 'cancelado'
+WHERE s.status = 'agendada'
+GROUP BY s.id, u.nome, u.email;

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Minhas Sessões — MentoriaConecta{% endblock %}
+{% block content %}
+<div class="dashboard-layout">
+  <aside class="sidebar">
+    <div class="sidebar-user">
+      <span class="sidebar-user-name">{{ usuario.nome.split()[0] }}</span>
+      <span class="sidebar-user-tipo">Aluno</span>
+    </div>
+    <ul class="sidebar-nav">
+      <li><a href="{{ url_for('aluno.dashboard') }}">Painel</a></li>
+      <li><a href="{{ url_for('sessao.minhas_sessoes') }}" class="active">Minhas Sessões</a></li>
+      <li><a href="{{ url_for('aluno.perfil') }}">Meu Perfil</a></li>
+      <div class="sidebar-divider"></div>
+      <li><a href="{{ url_for('auth.logout') }}">Sair</a></li>
+    </ul>
+  </aside>
+  <div class="dash-body">
+    <div class="dash-header">
+      <h1>Minhas Sessões</h1>
+      <p>Sessões nas quais você está inscrito.</p>
+    </div>
+    {% if inscricoes %}
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Tema</th><th>Data / Hora</th><th>Formato</th><th>Link</th><th>Status</th><th>Ação</th></tr></thead>
+        <tbody>
+          {% for i in inscricoes %}
+          {% set s = i.sessao %}
+          <tr>
+            <td><strong>{{ s.tema if s else '—' }}</strong></td>
+            <td>{{ s.data_hora[:16].replace('T',' ') if s else '—' }}</td>
+            <td>{{ s.formato|capitalize if s else '—' }}</td>
+            <td>{% if s and s.link_reuniao %}<a href="{{ s.link_reuniao }}" target="_blank" style="color:var(--marinho);font-weight:600;">Entrar →</a>{% endif %}</td>
+            <td><span class="status status-{{ i.status }}">{{ i.status }}</span></td>
+            <td>
+              {% if i.status == 'inscrito' %}
+              <form method="POST" action="{{ url_for('sessao.cancelar_inscricao', sessao_id=s.id) }}">
+                <button type="submit" class="btn-perigo" onclick="return confirm('Cancelar inscrição?')">Cancelar</button>
+              </form>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <p>Você ainda não está inscrito em nenhuma sessão. Volte ao <a href="{{ url_for('aluno.dashboard') }}">painel</a> e inscreva-se nas sessões disponíveis.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

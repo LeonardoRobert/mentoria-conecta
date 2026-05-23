@@ -1,32 +1,23 @@
 {% extends "base.html" %}
 {% block title %}Entrar — MentoriaConecta{% endblock %}
 {% block content %}
-
 <div class="form-container">
   <div class="form-card">
-    <div class="form-title">Bem-vindo de volta 👋</div>
-    <div class="form-subtitle">Entre com seu email e senha para acessar a plataforma.</div>
-
-    {% if erro %}
-    <div class="form-error">{{ erro }}</div>
-    {% endif %}
-
-    <form method="POST" action="{{ url_for('auth.login') }}">
+    <div class="form-title">Bem-vindo de volta</div>
+    <div class="form-subtitle">Entre com suas credenciais para acessar a plataforma.</div>
+    {% if erro %}<div class="form-error">{{ erro }}</div>{% endif %}
+    <form method="POST">
       <div class="form-group">
-        <label for="email">Email</label>
+        <label for="email">Endereço de e-mail</label>
         <input type="email" id="email" name="email" placeholder="seu@email.com" required autocomplete="email">
       </div>
       <div class="form-group">
         <label for="senha">Senha</label>
-        <input type="password" id="senha" name="senha" placeholder="••••••••" required autocomplete="current-password">
+        <input type="password" id="senha" name="senha" placeholder="••••••••" required>
       </div>
-      <button type="submit" class="btn-full">Entrar</button>
+      <button type="submit" class="btn-full">Acessar a plataforma</button>
     </form>
-
-    <div class="form-footer">
-      Não tem conta? <a href="{{ url_for('auth.registro') }}">Cadastre-se grátis</a>
-    </div>
+    <div class="form-footer">Não possui conta? <a href="{{ url_for('auth.registro') }}">Cadastre-se gratuitamente</a></div>
   </div>
 </div>
-
 {% endblock %}

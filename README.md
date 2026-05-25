@@ -24,63 +24,6 @@ O **MentoriaConecta** é uma plataforma web que conecta voluntários (mentores) 
 
 ---
 
-## ⚙️ Como rodar o projeto
-
-### 1. Clone o repositório
-```bash
-git clone https://github.com/SEU_USUARIO/mentoria-conecta.git
-cd mentoria-conecta
-```
-
-### 2. Crie e ative o ambiente virtual
-```bash
-python -m venv venv
-# Windows:
-venv\Scripts\activate
-# Linux/Mac:
-source venv/bin/activate
-```
-
-### 3. Instale as dependências
-```bash
-pip install -r requirements.txt
-```
-
-### 4. Configure as variáveis de ambiente
-
-Copie o arquivo de exemplo e preencha com suas chaves do Supabase:
-```bash
-cp .env.example .env
-```
-
-Edite o arquivo `.env`:
-```env
-SUPABASE_URL=https://SEU_PROJETO.supabase.co
-SUPABASE_KEY=sua_anon_key_aqui
-SUPABASE_SECRET=sua_service_role_key_aqui
-SECRET_KEY=qualquer-string-aleatoria
-JWT_SECRET_KEY=outra-string-aleatoria
-```
-
-> **Onde encontrar as chaves no Supabase:**  
-> Acesse: `https://supabase.com/dashboard/project/SEU_PROJETO/settings/api`
-
-### 5. Configure o banco de dados no Supabase
-
-No painel do Supabase, vá em **SQL Editor** e execute o conteúdo do arquivo:
-```
-docs/database.sql
-```
-
-### 6. Inicie o servidor
-```bash
-python run.py
-```
-
-Acesse: **http://localhost:5000**
-
----
-
 ## 📊 Estrutura do Projeto
 
 ```
@@ -112,25 +55,6 @@ mentoria-conecta/
 
 ---
 
-## 🧠 Algoritmo de Recomendação (Matemática Discreta)
-
-O sistema utiliza o **Coeficiente de Jaccard** para calcular compatibilidade:
-
-```
-J(A, B) = |A ∩ B| / |A ∪ B|
-```
-
-Onde:
-- **A** = conjunto de habilidades do mentor
-- **B** = conjunto de habilidades buscadas pelo aluno
-
-O **score final** combina:
-- 60% compatibilidade de habilidades (Jaccard)
-- 30% média de avaliações recebidas
-- 10% experiência (quantidade de sessões realizadas)
-
----
-
 ## 🗃️ Modelo Entidade-Relacionamento (MER)
 
 ```
@@ -154,15 +78,6 @@ O projeto contribui para o ODS 4 ao:
 - Eliminar a barreira financeira ao acesso à mentoria
 - Conectar pessoas em situação de vulnerabilidade com profissionais qualificados
 - Promover o voluntariado e o impacto social através da tecnologia
-
----
-
-## 👥 Autores
-
-- **[Seu Nome]** — [RA]
-- Orientadora: **Prof. Denise Moraes**
-- Curso: Ciência da Computação — 4º Período
-- Instituição: UNIG EAD — 2025
 
 ---
 
